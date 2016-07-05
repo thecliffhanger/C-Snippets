@@ -9,14 +9,11 @@ namespace SampleProject.Utils
     {
         private const string DisplayNameProperty = "displayname";
 
-        public static string GetActiveDirectoryDetails(string id, string propertyName)
+        public static string GetActiveDirectoryDetails(string id, string domain, string propertyName)
         {
-            // To extract only user id excluding the domain
-            var input = id.Split(new[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);
-
-            using (var entry = new DirectoryEntry("LDAP://" + input[0]))
+            using (var entry = new DirectoryEntry("LDAP://" + domain))
             {
-                var search = new DirectorySearcher(entry) {Filter = "(&(objectClass=user)(anr=" + input[1] + "))"};
+                var search = new DirectorySearcher(entry) {Filter = "(&(objectClass=user)(anr=" + id + "))"};
 
                 //search.PropertiesToLoad.Add("displayname");
 
@@ -33,11 +30,13 @@ namespace SampleProject.Utils
         }
 
         // Example method to use LDAP queries
-        public static string GetFullName(string id)
+        public static string GetFullName(string idwithDomain)
         {
+            var input = idwithDomain.Split(new[] { "\\" }, StringSplitOptions.RemoveEmptyEntries);
+
             // Fetching the LDAP query results and caching them as well
             var displayName = MemoryCacheUtil.AddOrGetExisting(id + DisplayNameProperty, 
-                                  () => GetActiveDirectoryDetails(id, DisplayNameProperty));
+                                  () => GetActiveDirectoryDetails(input[1], input[0], DisplayNameProperty));
             
             // converting "lastname, firstname" to "FirstName LastName"
             var names = displayName.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
