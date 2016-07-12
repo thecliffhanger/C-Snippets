@@ -1,0 +1,31 @@
+
+        [Remote("IsUniqueUser", "<Controller name>", HttpMethod = "Post", ErrorMessage = "This Login ID is already taken. Please choose a new ID!")]
+        public new string LoginId { get; set; }
+        
+        /... .../
+        
+        [HttpPost]
+        public async Task<JsonResult> IsUniqueUser(string loginId)
+        {
+            // Logic to determine uniqueness of the user Id
+            return Json(data: <true/false>, behavior: JsonRequestBehavior.AllowGet);
+        }
+        
+        /*
+        public RemoteAttribute(string routeName);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:System.Web.Mvc.RemoteAttribute"/> class using the specified action-method name and controller name.
+        /// </summary>
+        /// <param name="action">The name of the action method.</param><param name="controller">The name of the controller.</param>
+        public RemoteAttribute(string action, string controller);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:System.Web.Mvc.RemoteAttribute"/> class using the specified action-method name, controller name, and area name.
+        /// </summary>
+        /// <param name="action">The name of the action method.</param><param name="controller">The name of the controller.</param><param name="areaName">The name of the area.</param>
+        public RemoteAttribute(string action, string controller, string areaName);
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:System.Web.Mvc.RemoteAttribute"/> class.
+        /// </summary>
+        /// <param name="action">The route name.</param><param name="controller">The name of the controller.</param><param name="areaReference">Find the controller in the root if <see cref="F:System.Web.Mvc.AreaReference.UseRoot"/>. Otherwise look in the current area.</param>
+        public RemoteAttribute(string action, string controller, AreaReference areaReference);
+        */
