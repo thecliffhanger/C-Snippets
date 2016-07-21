@@ -1,0 +1,80 @@
+Excerpt from Stack Overflow:
+
+Briefly:
+
+get the self signed certificate
+put it into some (e.g. ~/git-certs/cert.pem) file
+set git to trust this certificate using http.sslCAInfo parameter.
+In more details:
+
+Get self signed certificate of remote server
+
+Assuming, the server url is repos.sample.com and you want to access it over port 443.
+
+There are multiple options, how to get it.
+
+get cert using openssl
+
+$ openssl s_client -connect repos.sample.com:443
+Catch the output into a file cert.pem and delete all but part between (and including) -BEGIN CERTIFICATE- and -END CERTIFICATE-
+
+Content of resulting file ~/git-certs/cert.pem may look like this:
+
+-----BEGIN CERTIFICATE-----
+MIIDnzCCAocCBE/xnXAwDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNVBAYTAkRFMRUw
+EwYDVQQIEwxMb3dlciBTYXhvbnkxEjAQBgNVBAcTCVdvbGZzYnVyZzEYMBYGA1UE
+ChMPU2FhUy1TZWN1cmUuY29tMRowGAYDVQQDFBEqLnNhYXMtc2VjdXJlLmNvbTEj
+MCEGCSqGSIb3DQEJARYUaW5mb0BzYWFzLXNlY3VyZS5jb20wHhcNMTIwNzAyMTMw
+OTA0WhcNMTMwNzAyMTMwOTA0WjCBkzELMAkGA1UEBhMCREUxFTATBgNVBAgTDExv
+d2VyIFNheG9ueTESMBAGA1UEBxMJV29sZnNidXJnMRgwFgYDVQQKEw9TYWFTLVNl
+Y3VyZS5jb20xGjAYBgNVBAMUESouc2Fhcy1zZWN1cmUuY29tMSMwIQYJKoZIhvcN
+AQkBFhRpbmZvQHNhYXMtc2VjdXJlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAMUZ472W3EVFYGSHTgFV0LR2YVE1U//sZimhCKGFBhH3ZfGwqtu7
+mzOhlCQef9nqGxgH+U5DG43B6MxDzhoP7R8e1GLbNH3xVqMHqEdcek8jtiJvfj2a
+pRSkFTCVJ9i0GYFOQfQYV6RJ4vAunQioiw07OmsxL6C5l3K/r+qJTlStpPK5dv4z
+Sy+jmAcQMaIcWv8wgBAxdzo8UVwIL63gLlBz7WfSB2Ti5XBbse/83wyNa5bPJPf1
+U+7uLSofz+dehHtgtKfHD8XpPoQBt0Y9ExbLN1ysdR9XfsNfBI5K6Uokq/tVDxNi
+SHM4/7uKNo/4b7OP24hvCeXW8oRyRzpyDxMCAwEAATANBgkqhkiG9w0BAQUFAAOC
+AQEAp7S/E1ZGCey5Oyn3qwP4q+geQqOhRtaPqdH6ABnqUYHcGYB77GcStQxnqnOZ
+MJwIaIZqlz+59taB6U2lG30u3cZ1FITuz+fWXdfELKPWPjDoHkwumkz3zcCVrrtI
+ktRzk7AeazHcLEwkUjB5Rm75N9+dOo6Ay89JCcPKb+tNqOszY10y6U3kX3uiSzrJ
+ejSq/tRyvMFT1FlJ8tKoZBWbkThevMhx7jk5qsoCpLPmPoYCEoLEtpMYiQnDZgUc
+TNoL1GjoDrjgmSen4QN5QZEGTOe/dsv1sGxWC+Tv/VwUl2GqVtKPZdKtGFqI8TLn
+/27/jIdVQIKvHok2P/u9tvTUQA==
+-----END CERTIFICATE-----
+get cert using your web browser
+
+Firefox -> Options -> Advanced -> Certificates -> View Certificates -> Servers, found there the selfsigned host, selected it and using Export button I got exactly the same file, as created using openssl.
+
+Having the trusted certificate in dedicated file
+
+Previous steps shall result in having the certificate in some file. It does not matter, what file it is as long as it is visible to your git when accessing that domain. (ex:  ~/git-certs/cert.pem )
+
+Note: If you need more trusted selfsigned certificates, put them into the same file:
+
+-----BEGIN CERTIFICATE-----
+MIIDnzCCAocCBE/xnXAwDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNVBAYTAkRFMRUw
+...........
+/27/jIdVQIKvHok2P/u9tvTUQA==
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+AnOtHeRtRuStEdCeRtIfIcAtEgOeShErExxxxxxxxxxxxxxxxxxxxxxxxxxxxxxw
+...........
+/27/jIdVQIKvHok2P/u9tvTUQA==
+-----END CERTIFICATE-----
+
+Configure git to trust this certificate:
+
+$ git config --global http.sslCAInfo /home/javl/git-certs/cert.pem
+You may also try to do that system wide, using --system instead of --global.
+
+And test it: You shall now be able communicating with your server without resorting to:
+
+$ git config --global http.sslVerify false #NO NEED TO USE THIS
+If you already set your git to ignorance of ssl certificates, unset it:
+
+$ git config --global --unset http.sslVerify
+you may also check, that you did it all correctly, without spelling errors:
+
+$ git config --global --list
+should list all variables, you have set globally.
