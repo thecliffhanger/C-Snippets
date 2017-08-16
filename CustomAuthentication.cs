@@ -15,3 +15,33 @@
 
         HttpContext.GetOwinContext().Authentication.SignIn(
            new AuthenticationProperties { IsPersistent = false }, ident);
+
+-----------------------------------------------------------------------------------------
+     
+        public static IIdentity GetCurrentUserIdentity()
+        {
+            return HttpContext.Current.User.Identity;
+        }
+
+        public static bool IsUserAuthenticated()
+        {
+            return HttpContext.Current.User.Identity.IsAuthenticated;
+        }
+
+        public static bool IsAdmin()
+        {
+            return HttpContext.Current.User.IsInRole("admin");
+        }
+
+        public static List<string> Roles()
+        {
+            return  ((ClaimsIdentity)HttpContext.Current.GetOwinContext().Authentication.User.Identity).Claims
+                           .Where(c => c.Type == ClaimTypes.Role)
+                           .Select(c => c.Value)
+                           .ToList();
+        }
+
+        public static string GetCurrentUserRole()
+        {
+            return Roles()[0];
+        }
